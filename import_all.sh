@@ -1,5 +1,5 @@
 #!/bin/bash
-(
+
 if [[ $# -lt 1 ]]; then
     echo "Continuously recursively imports repositories defined in repositories file."
     echo "Use with vcstool https://github.com/dirk-thomas/vcstool"
