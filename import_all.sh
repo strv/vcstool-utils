@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ $# < 1 ]]; then
+if [[ $# -lt 1 ]]; then
     echo "Continuously recursively imports repositories defined in repositories file."
     echo "Use with vcstool https://github.com/dirk-thomas/vcstool"
     echo ""
@@ -36,8 +36,8 @@ case ${1} in
 esac
 done
 
-if [ -d ${1} ]; then
-    TARGET_DIR=$(cd $(dirname ${1}); pwd)/$(basename ${1})
+if [ -d "${DIR}" ]; then
+    TARGET_DIR=$(cd "$(dirname "${DIR}")" || exit 1; pwd)/$(basename "${DIR}")
 else
     echo "Target directory non-existent"
     exit 1
@@ -45,7 +45,7 @@ fi
 
 echo "Target suffix : ${SUFFIX}"
 echo "Start importing in ${TARGET_DIR}"
-TARGETS=($(find ${TARGET_DIR}/* -type f -name "*${SUFFIX}"))
+mapfile -t TARGETS < <(find "${TARGET_DIR}"/* -type f -name "*${SUFFIX}")
 if [ ${#TARGETS[@]} -eq 0 ]; then
     echo "No repositories file found"
     exit 1
@@ -56,10 +56,10 @@ trap 'DO=false; exit 1' INT
 
 COMPLETES=()
 while [ ${#TARGETS[@]} != ${#COMPLETES[@]} ] && [ ${DO} == true ];do
-    for ROSINSTALL in ${TARGETS[@]}; do
+    for ROSINSTALL in "${TARGETS[@]}"; do
         SKIP=false
-        for COMPLETE in ${COMPLETES}; do
-            if [[ ${ROSINSTALL} == ${COMPLETE} ]]; then
+        for COMPLETE in "${COMPLETES[@]}"; do
+            if [[ ${ROSINSTALL} == "${COMPLETE}" ]]; then
                 SKIP=true
                 break
             fi
@@ -69,9 +69,9 @@ while [ ${#TARGETS[@]} != ${#COMPLETES[@]} ] && [ ${DO} == true ];do
         fi
     done
     echo "Import ${ROSINSTALL}"
-    vcs import ${TARGET_DIR} < ${ROSINSTALL}
-    COMPLETES+=(${ROSINSTALL})
-    TARGETS=($(find ${TARGET_DIR}/* -type f -name "*${SUFFIX}"))
+    vcs import "${TARGET_DIR}" < "${ROSINSTALL}"
+    COMPLETES+=("${ROSINSTALL}")
+    mapfile -t TARGETS < <(find "${TARGET_DIR}"/* -type f -name "*${SUFFIX}")
 done
 
 echo "Complete!"
