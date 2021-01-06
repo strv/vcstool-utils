@@ -1,3 +1,5 @@
+![CI](https://github.com/strv/vcstool-utils/workflows/CI/badge.svg?branch=main&event=push)
+
 # vcstool-utils
 
 Utilities for using [vcstool](https://github.com/dirk-thomas/vcstool)
